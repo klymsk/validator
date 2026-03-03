@@ -123,7 +123,7 @@ Report Generator отримує:
 ---
 
 ### Діаграма компонентів
-
+![alt text](img/diag1.png)
 
 ---
 
@@ -215,6 +215,8 @@ ValidationResult передається у ReportGenerator.
 ---
 
 ## Діаграма класів
+
+![alt text](img/diag2.png)
 
 ---
 
