@@ -9,10 +9,10 @@ import os
 sys.path.append(os.path.dirname(__file__))
 
 def main():
-    with open("../schema.def") as f:
+    with open("../../schema.def") as f:
         schema_text = f.read()
 
-    with open("../data.txt") as f:
+    with open("../../data.txt") as f:
         data_text = f.read()
 
     schemas = SchemaParser().parse(schema_text)
