@@ -1,28 +1,40 @@
-from parser.schema_parser import SchemaParser
 from parser.data_parser import DataParser
 from validator.validator import Validator
-from report.report import ReportGenerator
-
-import sys
-import os
-
-sys.path.append(os.path.dirname(__file__))
+from exceptions.custom_exceptions import AppError
 
 def main():
-    with open("../../schema.def") as f:
-        schema_text = f.read()
+    schema = {
+        "name": {
+            "type": str,
+            "min_length": 2,
+            "max_length": 50
+        },
+        "age": {
+            "type": int,
+            "min": 0,
+            "max": 120
+        },
+        "address": {
+            "type": dict,
+            "schema": {
+                "city": {"type": str},
+                "zip": {"type": int}
+            }
+        }
+    }
 
-    with open("../../data.txt") as f:
-        data_text = f.read()
+    parser = DataParser("data.json")
+    
+    try:
+        data = parser.parse()
 
-    schemas = SchemaParser().parse(schema_text)
-    data = DataParser().parse(data_text)
+        validator = Validator(schema)
+        validator.validate(data)
 
-    schema = schemas[data.type_name]
+        print("Валідація пройшла успішно!")
 
-    result = Validator().validate(schema, data)
-
-    ReportGenerator().generate(result)
+    except AppError as e:
+        print(f"Помилка валідації: {e}")
 
 
 if __name__ == "__main__":

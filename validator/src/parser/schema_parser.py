@@ -1,6 +1,5 @@
 from model.schema import Schema, Field
 
-
 class SchemaParser:
     def parse(self, text):
         schemas = {}

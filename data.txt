@@ -1,0 +1,4 @@
+User {
+    id: 105
+    username: "Alex"
+}

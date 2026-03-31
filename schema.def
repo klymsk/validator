@@ -1,0 +1,9 @@
+type Address {
+    city: string
+    zipcode: integer
+}
+
+type User {
+    id: integer
+    username: string
+}
