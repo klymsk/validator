@@ -1,7 +1,6 @@
 import json
 from exceptions.custom_exceptions import ParserError
 
-
 class DataParser:
     def __init__(self, file_path):
         self.file_path = file_path
@@ -16,5 +15,4 @@ class DataParser:
 
         except json.JSONDecodeError:
             raise ParserError("Невірний формат JSON")
-        
         

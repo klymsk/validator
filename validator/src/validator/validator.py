@@ -1,14 +1,14 @@
 from exceptions.custom_exceptions import MissingFieldError
-from checks.number_check import validate_number
-from checks.string_check import validate_string
-from checks.regex_check import validate_regex
-from checks.type_check import validate_type
+from .checks.number_check import validate_number
+from .checks.string_check import validate_string
+from .checks.regex_check import validate_regex
+from .checks.type_check import validate_type
 
 class Validator:
     def __init__(self, schema):
         self.schema = schema
 
-    def Validate(self, data, schema = None, path = ""):
+    def validate(self, data, schema = None, path = ""):
         if schema is None:
             schema = self.schema
 
