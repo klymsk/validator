@@ -1,56 +1,33 @@
-import re
-from exceptions.custom_exceptions import (
-    MissingFieldError,
-    TypeMismatchError,
-    ConstraintError
-)
+from exceptions.custom_exceptions import MissingFieldError
+from checks.number_check import validate_number
+from checks.string_check import validate_string
+from checks.regex_check import validate_regex
+from checks.type_check import validate_type
 
 class Validator:
     def __init__(self, schema):
         self.schema = schema
 
-    def validate(self, data, schema=None, path=""):
+    def Validate(self, data, schema = None, path = ""):
         if schema is None:
             schema = self.schema
 
         for field, rules in schema.items():
             full_path = f"{path}.{field}" if path else field
 
-            # Перевірка полів
             if field not in data:
                 raise MissingFieldError(f"Поле '{full_path}' відсутнє")
-
-            # Перевірка типу
+            
             value = data[field]
             expected_type = rules.get("type")
-            if expected_type and not isinstance(value, expected_type):
-                raise TypeMismatchError(
-                    f"Поле '{full_path}' має бути {expected_type.__name__}, а не {type(value).__name__}"
-                )
 
-            # Вкладена структура
+            validate_type(value, expected_type, full_path)
+
             if expected_type == dict and "schema" in rules:
                 self.validate(value, rules["schema"], full_path)
-
-            # Числа
-            if isinstance(value, (int, float)):
-                if "min" in rules and value < rules["min"]:
-                    raise ConstraintError(f"{full_path} менше мінімального значення")
-
-                if "max" in rules and value > rules["max"]:
-                    raise ConstraintError(f"{full_path} більше максимального значення")
-
-            # Довжина рядка
-            if isinstance(value, str):
-                if "min_length" in rules and len(value) < rules["min_length"]:
-                    raise ConstraintError(f"{full_path} занадто коротке")
-
-                if "max_length" in rules and len(value) > rules["max_length"]:
-                    raise ConstraintError(f"{full_path} занадто довге")
-
-            # REGEX
-            if "regex" in rules:
-                if not re.match(rules["regex"], value):
-                    raise ConstraintError(f"{full_path} не відповідає формату")
+            
+            validate_number(value, rules, full_path)
+            validate_string(value, rules, full_path)
+            validate_regex(value, rules, full_path)
 
         return True
