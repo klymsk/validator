@@ -1,15 +1,8 @@
-import re
+import json
 
 class DataParser:
     def parse(self, text):
-        text = re.sub(r'(\w+):', r'"\1":', text)
-        text = text.replace("true", "True").replace("false", "False")
-
-        # прибираємо типи типу User {
-        text = re.sub(r'\w+\s*{', '{', text)
-
-        return eval(text)
-
+        return json.loads(text)
 
 # import json
 # from exceptions.custom_exceptions import ParserError

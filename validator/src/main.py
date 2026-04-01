@@ -1,41 +1,24 @@
+from parser.schema_parser import SchemaParser
 from parser.data_parser import DataParser
 from validator.validator import Validator
-from exceptions.custom_exceptions import AppError
 
 def main():
-    schema = {
-        "name": {
-            "type": str,
-            "min_length": 2,
-            "max_length": 50
-        },
-        "age": {
-            "type": int,
-            "min": 0,
-            "max": 120
-        },
-        "address": {
-            "type": dict,
-            "schema": {
-                "city": {"type": str},
-                "zip": {"type": int}
-            }
-        }
-    }
+    with open("../../schema.def") as f:
+        schema_text = f.read()
 
-    parser = DataParser("data.json")
-    
-    try:
-        data = parser.parse()
+    with open("../../data.txt") as f:
+        data_text = f.read()
 
-        validator = Validator(schema)
-        validator.validate(data)
+    schema = SchemaParser().parse(schema_text)
+    data = DataParser().parse(data_text)
 
-        print("Валідація пройшла успішно!")
+    root_type = list(schema.keys())[0]
 
-    except AppError as e:
-        print(f"Помилка валідації: {e}")
+    validator = Validator(schema["User"])
 
+    validator.validate(data)
+
+    print("Валідація проейдена!")
 
 if __name__ == "__main__":
     main()
