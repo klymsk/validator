@@ -1,0 +1,13 @@
+type Address {
+    city: string length(2, 50)
+    zipcode: integer range(10000, 99999)
+}
+
+type User {
+    id: integer range(1, 9999)
+    username: string length(3, 20)
+    email: string regex(".*@.*")
+    is_active: boolean
+    address: Address
+    friends: list[User]
+}
