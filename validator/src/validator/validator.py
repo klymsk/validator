@@ -47,19 +47,6 @@ class Validator:
 
                 if "max_length" in rules and len(value) > rules["max_length"]:
                     raise ConstraintError(f"{full_path} занадто довге")
-                
-            if expected_type == list:
-                if not isinstance(value, list):
-                    raise TypeMismatchError(f"{full_path} має бути списком")
-
-                # якщо є схема елементів
-                if "items" in rules:
-                    for i, item in enumerate(value):
-                        self.validate(
-                            {f"item_{i}": item},
-                            {f"item_{i}": rules["items"]},
-                            full_path
-                        )
 
             # REGEX
             if "regex" in rules:

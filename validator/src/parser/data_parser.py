@@ -16,3 +16,5 @@ class DataParser:
 
         except json.JSONDecodeError:
             raise ParserError("Невірний формат JSON")
+        
+        

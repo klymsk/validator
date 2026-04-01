@@ -3,7 +3,6 @@ from parser.data_parser import DataParser
 from exceptions.custom_exceptions import ParserError
 from unittest.mock import mock_open, patch
 
-
 def test_valid_json():
     mock_data = '{"name": "Alex"}'
 
