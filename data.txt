@@ -1,11 +1,11 @@
-User {
-    id: 105
-    username: "Sasha"
-    email: "Sasha@example.com"
-    is_active: true
-    address: Address {
-        city: "Kyiv"
-        zipcode: 10001
-    }
-    friends: []
+{
+    "id": 105,
+    "username": "SashaKlym",
+    "email": "Sasha@example.com",
+    "is_active": true,
+    "address": {
+        "city": "Kyiv",
+        "zipcode": 10001
+    },
+    "friends": []
 }
