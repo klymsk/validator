@@ -1,24 +1,49 @@
 from parser.schema_parser import SchemaParser
 from parser.data_parser import DataParser
 from validator.validator import Validator
+from exceptions.custom_exceptions import AppError
 
 def main():
-    with open("../../schema.def") as f:
-        schema_text = f.read()
+    try:
+        # Читаємо файли
+        try:
+            with open("../../schema.def") as f:
+                schema_text = f.read()
+        except FileNotFoundError:
+            print("Помилка: Файл 'schema.def' не знайдено")
+            return
+        except IOError as e:
+            print(f"Помилка при читанні 'schema.def': {str(e)}")
+            return
 
-    with open("../../data.txt") as f:
-        data_text = f.read()
+        try:
+            with open("../../data.txt") as f:
+                data_text = f.read()
+        except FileNotFoundError:
+            print("Помилка: Файл 'data.txt' не знайдено")
+            return
+        except IOError as e:
+            print(f"Помилка при читанні 'data.txt': {str(e)}")
+            return
 
-    schema = SchemaParser().parse(schema_text)
-    data = DataParser().parse(data_text)
+        # Парсимо схему та дані
+        schema = SchemaParser().parse(schema_text)
+        data = DataParser().parse(data_text)
 
-    root_type = list(schema.keys())[0]
+        root_type = list(schema.keys())[0]
 
-    validator = Validator(schema["User"])
+        # Валідуємо дані
+        validator = Validator(schema["User"])
+        validator.validate(data)
 
-    validator.validate(data)
+        print("Валідація пройдена успішно!")
 
-    print("Валідація проейдена!")
+    except AppError as e:
+        print(f"Помилка валідації: {str(e)}")
+        return
+    except Exception as e:
+        print(f"Неочікувана помилка: {str(e)}")
+        return
 
 if __name__ == "__main__":
     main()

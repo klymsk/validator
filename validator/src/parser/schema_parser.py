@@ -1,4 +1,5 @@
 import re
+from exceptions.custom_exceptions import SchemaError
 
 TYPE_MAP = {
     "integer": int,
@@ -8,35 +9,48 @@ TYPE_MAP = {
 
 class SchemaParser:
     def parse(self, text: str):
-        types = {}
-        current_type = None
+        try:
+            types = {}
+            current_type = None
 
-        lines = [line.strip() for line in text.splitlines() if line.strip()]
+            lines = [line.strip() for line in text.splitlines() if line.strip()]
 
-        for line in lines:
-            if line.startswith("type"):
-                type_name = line.split()[1]
-                types[type_name] = {}
-                current_type = type_name
-                continue
+            for line_num, line in enumerate(lines, 1):
+                try:
+                    if line.startswith("type"):
+                        type_name = line.split()[1]
+                        types[type_name] = {}
+                        current_type = type_name
+                        continue
 
-            if line == "}":
-                current_type = None
-                continue
+                    if line == "}":
+                        current_type = None
+                        continue
 
-            if current_type:
-                field, rest = line.split(":", 1)
-                field = field.strip()
-                rest = rest.strip()
+                    if current_type:
+                        if ":" not in line:
+                            raise SchemaError(f"Невірна синтаксис поля на лінії {line_num}: {line}")
 
-                types[current_type][field] = self._parse_field(rest)
+                        field, rest = line.split(":", 1)
+                        field = field.strip()
+                        rest = rest.strip()
 
-        # Розв'язуємо вкладені типи (Address, list[User])
-        for type_name, fields in types.items():
-            for field_name, rules in fields.items():
-                self._resolve_types(rules, types)
+                        types[current_type][field] = self._parse_field(rest)
+                except SchemaError:
+                    raise
+                except Exception as e:
+                    raise SchemaError(f"Помилка парсингу на лінії {line_num}: {str(e)}")
 
-        return types
+            # Розв'язуємо вкладені типи (Address, list[User])
+            for type_name, fields in types.items():
+                for field_name, rules in fields.items():
+                    self._resolve_types(rules, types)
+
+            return types
+        except SchemaError:
+            raise
+        except Exception as e:
+            raise SchemaError(f"Помилка парсингу схеми: {str(e)}")
 
     def _parse_field(self, text):
         rules = {}
