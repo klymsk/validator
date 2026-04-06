@@ -1,36 +1,52 @@
 import pytest
-from exceptions.custom_exceptions import ConstraintError, MissingFieldError, TypeMismatchError
+from exceptions.custom_exceptions import (
+    ConstraintError,
+    MissingFieldError,
+    TypeMismatchError,
+    ValidationError
+)
 from validator.validator import Validator
-from exceptions.custom_exceptions import *
 
-schema = {
-    "name": {"type": str},
-    "age": {"type": int, "min": 0, "max": 120}
-}
 
-def test_valid_data():
-    validator = Validator(schema)
-    data = {"name": "Alex", "age": 25}
+# Базові тести
+class TestValidatorBasic:
+    @pytest.fixture
+    def simple_schema(self):
+        return {
+            "name": {"type": str},
+            "age": {"type": int}
+        }
 
-    assert validator.validate(data) is True
+    # Перевірка коректних даних
+    def test_valid_data(self, simple_schema):
+        validator = Validator(simple_schema)
+        data = {"name": "John", "age": 25}
 
-def test_missing_field():
-    validator = Validator(schema)
-    data = {"name": "Alex"}
+        assert validator.validate(data) is True
 
-    with pytest.raises(MissingFieldError):
-        validator.validate(data)
+    # Наявність поля
+    def test_missing_field(self, simple_schema):
+        validator = Validator(simple_schema)
+        data = {"name": "John"}  # age
 
-def test_wrong_type():
-    validator = Validator(schema)
-    data = {"name": "Alex", "age": "25"}
+        with pytest.raises(MissingFieldError) as exc_info:
+            validator.validate(data)
 
-    with pytest.raises(TypeMismatchError):
-        validator.validate(data)
+        assert "age" in str(exc_info.value)
 
-def test_constraint_error():
-    validator = Validator(schema)
-    data = {"name": "Alex", "age": 200}
+    # Перевірка типу
+    def test_wrong_type_string(self, simple_schema):
+        validator = Validator(simple_schema)
+        data = {"name": "John", "age": "25"} 
 
-    with pytest.raises(ConstraintError):
-        validator.validate(data)
+        with pytest.raises(TypeMismatchError):
+            validator.validate(data)
+
+    def test_wrong_type_number(self, simple_schema):
+        validator = Validator(simple_schema)
+        data = {"name": 123, "age": 25}  # name має бути str, не int
+
+        with pytest.raises(TypeMismatchError):
+            validator.validate(data)
+
+

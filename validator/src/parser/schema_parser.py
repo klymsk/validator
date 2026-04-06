@@ -33,7 +33,7 @@ class SchemaParser:
                     if current_type:
                         if ":" not in line:
                             raise SchemaError(f"Невірна синтаксис поля на лінії {line_num}: {line}")
-
+                        # Ініціюю поле та його значення
                         field, rest = line.split(":", 1)
                         field = field.strip()
                         rest = rest.strip()
