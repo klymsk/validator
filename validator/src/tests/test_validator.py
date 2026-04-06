@@ -189,3 +189,40 @@ class TestNestedObjects:
             validator.validate(data)
 
         assert "user.age" in str(exc_info.value)
+
+# Інші типи перевірок
+class TestEdgeCases:
+
+    # Пуста схема
+    def test_empty_schema(self):
+        validator = Validator({})
+        assert validator.validate({}) is True
+
+    # Пустий рядок
+    def test_empty_string(self):
+        schema = {"text": {"type": str, "min_length": 0, "max_length": 10}}
+        validator = Validator(schema)
+        assert validator.validate({"text": ""}) is True
+
+    def test_zero_value(self):
+        schema = {"count": {"type": int, "min": 0, "max": 100}}
+        validator = Validator(schema)
+        assert validator.validate({"count": 0}) is True
+
+    # Відʼємні числа
+    def test_negative_numbers(self):
+        schema = {"temperature": {"type": int, "min": -50, "max": 50}}
+        validator = Validator(schema)
+        assert validator.validate({"temperature": -30}) is True
+
+        with pytest.raises(ConstraintError):
+            validator.validate({"temperature": -60})
+
+    # Дробові числа
+    def test_float_values(self):
+        schema = {"price": {"type": float, "min": 0.0, "max": 1000.0}}
+        validator = Validator(schema)
+        assert validator.validate({"price": 99.99}) is True
+
+        with pytest.raises(ConstraintError):
+            validator.validate({"price": 1000.01})
