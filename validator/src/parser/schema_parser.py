@@ -13,14 +13,17 @@ class SchemaParser:
             types = {}
             current_type = None
 
+            # Виділяємо рядки
             lines = [line.strip() for line in text.splitlines() if line.strip()]
 
+            # Проходимо по всіх рядках та проводимо нумерацію
             for line_num, line in enumerate(lines, 1):
                 try:
+                    # Визначаємо тип
                     if line.startswith("type"):
                         type_name = line.split()[1]
                         types[type_name] = {}
-                        current_type = type_name
+                        current_type = type_name # Обробка типу
                         continue
 
                     if line == "}":
