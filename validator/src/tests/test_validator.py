@@ -78,3 +78,114 @@ class TestNumberConstraints:
             validator.validate({"id": 10000})
 
         assert "більше" in str(exc_info.value).lower()
+
+# Тести рядків
+class TestStringConstraints:
+
+    @pytest.fixture
+    def string_schema(self):
+        return {
+            "username": {"type": str, "min_length": 3, "max_length": 20}
+        }
+
+    def test_valid_string(self, string_schema):
+        validator = Validator(string_schema)
+        assert validator.validate({"username": "abc"}) is True
+        assert validator.validate({"username": "john123"}) is True
+        assert validator.validate({"username": "a" * 20}) is True
+
+    def test_string_too_short(self, string_schema):
+        validator = Validator(string_schema)
+
+        with pytest.raises(ConstraintError) as exc_info:
+            validator.validate({"username": "ab"})
+
+        assert "коротке" in str(exc_info.value).lower()
+
+    def test_string_too_long(self, string_schema):
+        validator = Validator(string_schema)
+
+        with pytest.raises(ConstraintError) as exc_info:
+            validator.validate({"username": "a" * 21})
+
+        assert "довге" in str(exc_info.value).lower()
+
+
+# Регулярні вирази
+class TestRegexValidation:
+
+    @pytest.fixture
+    def email_schema(self):
+        return {
+            "email": {"type": str, "regex": r".*@.*"}
+        }
+
+    # Коректний емайл
+    def test_valid_email(self, email_schema):
+        validator = Validator(email_schema)
+        assert validator.validate({"email": "user@example.com"}) is True
+        assert validator.validate({"email": "test@mail.co.uk"}) is True
+
+    def test_invalid_email(self, email_schema):
+        validator = Validator(email_schema)
+
+        with pytest.raises(ConstraintError) as exc_info:
+            validator.validate({"email": "invalidemail"})
+
+        assert "формату" in str(exc_info.value).lower()
+
+# Вкладені обʼєкти
+class TestNestedObjects:
+
+    @pytest.fixture
+    def nested_schema(self):
+        return {
+            "user": {
+                "type": dict,
+                "schema": {
+                    "name": {"type": str},
+                    "age": {"type": int}
+                }
+            }
+        }
+
+    # Коректний варіант
+    def test_valid_nested_object(self, nested_schema):
+        validator = Validator(nested_schema)
+        data = {
+            "user": {
+                "name": "John",
+                "age": 25
+            }
+        }
+        assert validator.validate(data) is True
+
+    def test_missing_nested_field(self, nested_schema):
+        validator = Validator(nested_schema)
+        data = {
+            "user": {
+                "name": "John"
+                # 'age'
+            }
+        }
+
+        with pytest.raises(MissingFieldError) as exc_info:
+            validator.validate(data)
+
+        # Повинно зберігати шлях user.age
+        assert "user" in str(exc_info.value)
+        assert "age" in str(exc_info.value)
+
+    def test_wrong_type_in_nested(self, nested_schema):
+        validator = Validator(nested_schema)
+        data = {
+            "user": {
+                "name": "John",
+                "age": "25"  # Має бути int
+            }
+        }
+
+        with pytest.raises(TypeMismatchError) as exc_info:
+            validator.validate(data)
+
+        assert "user.age" in str(exc_info.value)
